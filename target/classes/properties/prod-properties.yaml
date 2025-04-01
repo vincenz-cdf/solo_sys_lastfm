@@ -1,0 +1,11 @@
+https:
+  port: "8081"
+  
+api:
+  basePath: "/api/v1"
+  name: "solo-sys-lastfm-${mule.env}"
+  version: "1.0.1"
+  
+database:
+  user: "toto"
+  password: "${secure::database.password}"

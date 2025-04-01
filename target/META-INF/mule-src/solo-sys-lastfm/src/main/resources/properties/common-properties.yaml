@@ -1,0 +1,3 @@
+application:
+  name: "${artifactId}-${mule.env}"
+  version: "${version}"

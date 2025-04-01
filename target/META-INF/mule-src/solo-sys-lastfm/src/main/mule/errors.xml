@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="errorHandler" doc:id="7cf6be66-cebe-4491-991d-e9a9f75bd619" >
+		<set-payload value="#[output application/json&#10;---&#10;{&#10;	correlationId: correlationId,&#10;	code: vars.code,&#10;	description: error.description&#10;}]" doc:name="Generic response" doc:id="ac1a6284-4be7-4135-bd36-5279c05c1a9f" mimeType="application/json"/>
+		<logger level="INFO" doc:name="Error" doc:id="0253c776-33ce-4f94-9920-c707429de4b5" />
+	</sub-flow>
+	<error-handler name="globalErrorHandler" doc:id="31bf61d0-f37e-4f76-839f-98748cbbf955" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="Bad request" doc:id="98a88a9a-fae1-42af-a007-89513e44bc8d" type="APIKIT:BAD_REQUEST">
+			<set-variable value="BAD_REQUEST" doc:name="[code]" doc:id="a7da8ad4-574e-44b6-9d3f-9faa6523c8cd" variableName="code"/>
+			<flow-ref doc:name="Flow Reference" doc:id="03fe0d64-42ac-4e52-a8e3-601486ec5eea" name="errorHandler"/>
+			<set-variable value="400" doc:name="[httpStatus]" doc:id="0f195274-09c3-4ba1-be92-9b5c406b93ec" variableName="httpStatus"/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="Not implemented" doc:id="49b0bd5f-e4d0-425a-a551-bad03ba25d66" type="APIKIT:NOT_IMPLEMENTED">
+			<set-variable value="NOT_IMPLEMENTED" doc:name="[code]" doc:id="b1e68433-fa0b-40f6-a431-0465d3ab09b6" variableName="code" />
+			<flow-ref doc:name="Flow Reference" doc:id="0ebca3c4-68ac-4be7-9b59-01eeb6a82390" name="errorHandler" />
+			<set-variable value="501" doc:name="[httpStatus]" doc:id="e7b7f90d-5005-4608-9d80-1cddd87bbd2b" variableName="httpStatus" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="Unsupported media type" doc:id="30376082-7bb7-434d-85f9-77b70592c58c" type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+			<set-variable value="UNSUPPORTED_MEDIA_TYPE" doc:name="[code]" doc:id="9bdcecda-2949-4d81-9189-c8d6f2b91c03" variableName="code" />
+			<flow-ref doc:name="Flow Reference" doc:id="8be989a4-1765-4ac5-9374-8568f53f9879" name="errorHandler" />
+			<set-variable value="415" doc:name="[httpStatus]" doc:id="c4fb46e2-ff4d-478b-9c1c-44f8bcb996e5" variableName="httpStatus" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="Not acceptable" doc:id="6fc74cb2-2219-4f13-8b17-fc5d423de20a" type="APIKIT:NOT_ACCEPTABLE">
+			<set-variable value="NOT_ACCEPTABLE" doc:name="[code]" doc:id="61b13d1f-25b0-4ed1-9f63-1cae1fbc903f" variableName="code" />
+			<flow-ref doc:name="Flow Reference" doc:id="3e0e1a14-8a9b-4b30-b96d-312926004f55" name="errorHandler" />
+			<set-variable value="406" doc:name="[httpStatus]" doc:id="c24ead87-aa6d-4e30-bb43-27778a7b8cfa" variableName="httpStatus" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="Method not allowed" doc:id="736b5a31-4d00-4c32-b925-70b9c9a7e1a5" type="APIKIT:METHOD_NOT_ALLOWED">
+			<set-variable value="METHOD_NOT_ALLOWED" doc:name="[code]" doc:id="a22c9fe3-c4ae-4ea1-9ddb-92e3238f0afe" variableName="code" />
+			<flow-ref doc:name="Flow Reference" doc:id="c45b402a-8082-4e7f-84d5-a73af1790142" name="errorHandler" />
+			<set-variable value="405" doc:name="[httpStatus]" doc:id="56f092fa-6732-46b9-a8ef-f7a873fa1dfd" variableName="httpStatus" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="Not found" doc:id="f35831d1-61b6-428a-a051-84e1a7adbebe" type="APIKIT:NOT_FOUND">
+			<set-variable value="NOT_FOUND" doc:name="[code]" doc:id="9c82cbc8-7b73-4376-9316-3e4b4428cd23" variableName="code" />
+			<flow-ref doc:name="Flow Reference" doc:id="a4b0ab36-cc74-4266-ad1a-9612e3bc7855" name="errorHandler" />
+			<set-variable value="404" doc:name="[httpStatus]" doc:id="c0e414f2-3b1d-445c-8797-0b7663399fe8" variableName="httpStatus" />
+		</on-error-propagate>
+		<on-error-continue enableNotifications="true" logException="true" doc:name="Default error" doc:id="d75d4153-5991-4a63-8f05-83c815c96973" >
+			<set-variable value="SERVER_ERROR" doc:name="[code]" doc:id="bb12bb2a-1133-43ab-8b4e-f080da5e4af9" variableName="code" />
+			<flow-ref doc:name="Flow Reference" doc:id="ffef0b9a-de30-4657-a0b9-d16b01efbaf0" name="errorHandler" />
+			<set-variable value="500" doc:name="[httpStatus]" doc:id="dd422b99-5177-405c-8c27-29f43361625d" variableName="httpStatus" />
+		</on-error-continue>
+	</error-handler>
+</mule>

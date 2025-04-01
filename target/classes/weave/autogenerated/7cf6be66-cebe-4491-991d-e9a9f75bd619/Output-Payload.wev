@@ -1,0 +1,8 @@
+%dw 2.0
+
+type auto_7cf6be66_cebe_4491_991d_e9a9f75bd619_Output_Payload = {|
+  correlationId: String, 
+  code: Null, 
+  description: String | Null
+|}
+

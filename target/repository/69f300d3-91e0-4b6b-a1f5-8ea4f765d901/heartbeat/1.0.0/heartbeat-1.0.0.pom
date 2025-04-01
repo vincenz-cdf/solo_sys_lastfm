@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>69f300d3-91e0-4b6b-a1f5-8ea4f765d901</groupId>
+  <artifactId>heartbeat</artifactId>
+  <version>1.0.0</version>
+  <name>Heartbeat</name>
+  <properties>
+    <classifier>raml-fragment</classifier>
+    <main>heartbeat.raml</main>
+    <status>published</status>
+    <originalFormatVersion>1.0</originalFormatVersion>
+    <apiVersion>v1</apiVersion>
+    <projectId>4d09ce9d-6991-45a8-b28d-4f09aa0fdbd7</projectId>
+    <branchId>master</branchId>
+    <commitId>bbc77817463f01278da16bf3145ddc67f098d0bb</commitId>
+    <keywords/>
+    <type>raml-fragment</type>
+    <mainFile>heartbeat.raml</mainFile>
+  </properties>
+  <repositories>
+    <repository>
+      <id>anypoint-exchange</id>
+      <url>https://maven.anypoint.mulesoft.com/api/v3/maven</url>
+    </repository>
+  </repositories>
+</project>
