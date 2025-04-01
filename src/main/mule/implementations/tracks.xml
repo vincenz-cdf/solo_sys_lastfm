@@ -25,15 +25,78 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 			</http:request>
 			<set-variable value="#[output application/json&#10;---&#10;vars.minimizedTracks ++ [payload]]" doc:name="minimizedTracks ++ payload" doc:id="159036e9-62b3-45b8-b355-462a64ddbd59" variableName="minimizedTracks" />
 		</foreach>
-		<ee:transform doc:name="Transform Message" doc:id="0fc39d7e-6c80-427a-b770-9cdb1073c476" >
+		<set-variable value="#[output application/json&#10;---&#10;flatten(vars.minimizedTracks.tracks.track map () -&gt; $.mbid)]" doc:name="[mbids]" doc:id="4704dd8f-12e6-4bc2-88e2-fcd14041bfd8" variableName="mbids"/>
+		<logger level="INFO" doc:name="Logger1" doc:id="076db9fa-57dc-4ef0-b181-0bee8bdd59aa" />
+		<set-variable value="#[[]]" doc:name="[tracks]" doc:id="025883c4-ac99-4af4-876e-14035897e976" variableName="tracks"/>
+		<foreach doc:name="For Each mbids" doc:id="2ca20d26-8880-404b-be2c-f27b3ab18a94" collection="#[vars.mbids]">
+			<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.mbids[vars.counter-1]]" doc:name="[mbid]" doc:id="60ac9920-d03f-42b7-9a9d-65122d51faf1" variableName="mbid" />
+			<http:request method="GET" doc:name="to Lastfm (track.getInfo)" doc:id="1d952de8-223b-4f3a-82ef-cc3d2240af14" config-ref="LastfmRequestConfig" path="/">
+				<http:query-params><![CDATA[#[output application/java
+---
+{
+	"method" : "track.getInfo",
+	"mbid" : vars.mbid,
+	"format": "json",
+	"api_key": "${lastfm.apiKey}"
+}]]]></http:query-params>
+			</http:request>
+			<set-variable value="#[output application/json&#10;---&#10;vars.tracks ++ [payload]]" doc:name="tracks ++ payload" doc:id="04ef1a0d-10e4-4d15-b175-9353a770afb3" variableName="tracks" />
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="7a390430-707d-4efd-ba2f-4afc02f0dc11" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
+
+fun extractDate(publishedString) = 
+    if (publishedString contains ",")
+        publishedString splitBy "," map trim("_") then 
+        ((publishedString splitBy " ")[0] as String) ++ "-" ++ 
+        ((monthToNumber(((publishedString splitBy " ")[1] as String))) as String) ++ "-" ++ 
+        ((publishedString splitBy " ")[2] as String)
+    else
+        "2000-01-01" // Default date if format doesn't match
+
+fun monthToNumber(month) =
+    {
+        "Jan": "01",
+        "Feb": "02",
+        "Mar": "03",
+        "Apr": "04",
+        "May": "05",
+        "Jun": "06",
+        "Jul": "07",
+        "Aug": "08",
+        "Sep": "09",
+        "Oct": "10",
+        "Nov": "11",
+        "Dec": "12"
+    }[month] default "01"
+
+fun extractLargeImage(images) =
+    (images filter ($.size == "large"))[0]["#text"] default ""
+
+fun extractTags(tagArray) =
+    tagArray map $.name
+
 ---
-{
+(vars.tracks filter (item) -> !item.error?) map (item) -> {
+    mbid: item.track.mbid,
+    name: item.track.name,
+    artist: {
+        mbid: item.track.artist.mbid,
+        name: item.track.artist.name,
+        url: item.track.artist.url
+    },
+    url: item.track.url,
+    imageUrl: extractLargeImage(item.track.album.image),
+    date: extractDate(item.track.wiki.published),
+    listeners: item.track.listeners as Number,
+    playcount: item.track.playcount as Number,
+    summary: item.track.wiki.summary,
+    tags: extractTags(item.track.toptags.tag)
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger1" doc:id="076db9fa-57dc-4ef0-b181-0bee8bdd59aa" />
+		<logger level="INFO" doc:name="Logger" doc:id="019e1027-ed5c-4186-8a3b-7da41f3017d6" message="#[vars.tracks]"/>
 	</sub-flow>
 </mule>
