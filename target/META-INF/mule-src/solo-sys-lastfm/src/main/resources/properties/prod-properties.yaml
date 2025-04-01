@@ -1,11 +1,11 @@
 https:
-  port: "8081"
+  port: "8090"
   
 api:
   basePath: "/api/v1"
-  name: "${artifactId}-${mule.env}"
-  version: "${version}"
   
-database:
-  user: "toto"
-  password: "${secure::database.password}"
+lastfm:
+  protocol: "HTTPS"
+  apiKey: "${secure::lastfm.apiKey}"
+  host: "ws.audioscrobbler.com"
+  basePath: "/2.0"

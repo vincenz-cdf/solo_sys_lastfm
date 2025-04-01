@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-	<sub-flow name="getTracks" doc:id="075cd3e6-0b86-4957-ae15-df0a3b202edd" >
-		<set-variable value="#[attributes.queryParams.genres]" doc:name="[genres]" doc:id="eed92c13-a522-4cca-a88a-3443c9e1824c" variableName="genres"/>
-		<logger level="INFO" doc:name="Logger" doc:id="b3162a34-b2c0-4554-8810-28f41fff18fc" />
-		<set-variable value="#[[]]" doc:name="minimizedTracks[]" doc:id="3f708102-63a7-4e16-bb9e-4eee9daa3733" variableName="minimizedTracks"/>
-		<foreach doc:name="For Each genres" doc:id="1aa0cac9-2330-40e5-96bd-50a8876c1561" collection="#[vars.genres]">
-			<set-variable value="#[vars.genres[vars.counter-1]]" doc:name="[genre]" doc:id="17131a1d-d1b0-4aa4-838b-d390573a7f35" variableName="genre" />
-			<http:request method="GET" doc:name="to Lastfm (tags.topTracks)" doc:id="afb4d644-24ec-49bf-a00e-fa7fe87c75da" config-ref="LastfmRequestConfig" path="/">
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="getTracks" doc:id="24585d3e-793f-4a2d-afd3-333ad20cdf4b" >
+		<set-variable value='#[attributes.queryParams.genres splitBy ","]' doc:name="[genres]" doc:id="f260b4fc-1968-42a6-a407-023bbfe2bcec" variableName="genres" />
+		<logger level="INFO" doc:name="Logger" doc:id="be21ab9a-a220-43de-b4ec-0c554896c269" />
+		<set-variable value="#[[]]" doc:name="minimizedTracks[]" doc:id="7e951c03-7490-49a0-9b6c-73ae1074a2c0" variableName="minimizedTracks" />
+		<foreach doc:name="For Each genres" doc:id="553ceb9a-a1e8-4aed-af1a-84a1a9e8a0fc" collection="#[vars.genres]" >
+			<set-variable value="#[vars.genres[vars.counter-1]]" doc:name="[genre]" doc:id="a5ae5a4c-1028-41f0-b2d8-5e3bead8391d" variableName="genre" />
+			<http:request method="GET" doc:name="to Lastfm (tags.topTracks)" doc:id="5e5501c7-bf54-4ebb-bf29-664188be9b91" config-ref="LastfmRequestConfig" path="/" >
 				<http:query-params ><![CDATA[#[output application/java
 ---
 {
@@ -22,6 +23,17 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 	"api_key": "${lastfm.apiKey}"
 }]]]></http:query-params>
 			</http:request>
+			<set-variable value="#[output application/json&#10;---&#10;vars.minimizedTracks ++ [payload]]" doc:name="minimizedTracks ++ payload" doc:id="159036e9-62b3-45b8-b355-462a64ddbd59" variableName="minimizedTracks" />
 		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="0fc39d7e-6c80-427a-b770-9cdb1073c476" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger1" doc:id="076db9fa-57dc-4ef0-b181-0bee8bdd59aa" />
 	</sub-flow>
 </mule>
