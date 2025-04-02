@@ -22,19 +22,8 @@ output application/json
 		<logger level="INFO" doc:name="End heartbeat flow" doc:id="3ad5a638-a540-49bb-8dfa-980f86231b1e" message='#[import prettifyFlowName from modules::ToolBox&#10;---&#10;{&#10;	step:"Start $(prettifyFlowName(flow.name)) flow",&#10;	data: {}&#10;}]' category="solo-sys-lastfm" />
 	</flow>
 	<flow name="get:\tracks:Router" doc:id="e05cb0c6-f543-42fd-a5ed-dbfc32357d12" >
-		<logger level="INFO" doc:name="Logger" doc:id="ee7bf3b3-9d76-4660-b8cb-8a92bde483bf" />
+		<logger level="INFO" doc:name="Start flow" doc:id="20c896e1-da52-4f4a-84fc-c0bf99991e18" message='#[import prettifyFlowName from modules::ToolBox&#10;---&#10;{&#10;	step:"Start $(prettifyFlowName(flow.name)) flow",&#10;	data: {}&#10;}]' category="${app.name}" />
 		<flow-ref doc:name="getTracks" doc:id="622bf3e5-55bb-4a8f-bb6c-6ccc12d02e12" name="getTracks"/>
-		<ee:transform doc:name="Transform Message" doc:id="3112921b-407f-4d3f-94e3-c6200f6b4c8a" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-  correlationId: "ppppeeaaaazzz",
-  code: "BAD_REQUEST",
-  description: "Track mID is missing."
-} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
+		<logger level="INFO" doc:name="End flow" doc:id="82a50c5b-8fb9-49ac-9df2-f3f36a8b9dd5" message='#[import prettifyFlowName from modules::ToolBox&#10;---&#10;{&#10;	step:"Start $(prettifyFlowName(flow.name)) flow",&#10;	data: {}&#10;}]' category="solo-sys-lastfm" />
 	</flow>
 </mule>
