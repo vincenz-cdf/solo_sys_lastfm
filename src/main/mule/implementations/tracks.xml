@@ -6,8 +6,7 @@
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<sub-flow name="getTracks" doc:id="24585d3e-793f-4a2d-afd3-333ad20cdf4b" >
-		<set-variable value='#[attributes.queryParams.genres splitBy ","]' doc:name="[genres]" doc:id="f260b4fc-1968-42a6-a407-023bbfe2bcec" variableName="genres" />
-		<logger level="INFO" doc:name="Logger" doc:id="be21ab9a-a220-43de-b4ec-0c554896c269" />
+		<set-variable value='#[[attributes.queryParams.genre]]' doc:name="[genres]" doc:id="f260b4fc-1968-42a6-a407-023bbfe2bcec" variableName="genres" />
 		<set-variable value="#[[]]" doc:name="minimizedTracks[]" doc:id="7e951c03-7490-49a0-9b6c-73ae1074a2c0" variableName="minimizedTracks" />
 		<foreach doc:name="For Each genres" doc:id="553ceb9a-a1e8-4aed-af1a-84a1a9e8a0fc" collection="#[vars.genres]" >
 			<set-variable value="#[vars.genres[vars.counter-1]]" doc:name="[genre]" doc:id="a5ae5a4c-1028-41f0-b2d8-5e3bead8391d" variableName="genre" />
@@ -47,14 +46,12 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 
-fun extractDate(publishedString) = 
-    if (publishedString contains ",")
-        publishedString splitBy "," map trim("_") then 
-        ((publishedString splitBy " ")[0] as String) ++ "-" ++ 
-        ((monthToNumber(((publishedString splitBy " ")[1] as String))) as String) ++ "-" ++ 
-        ((publishedString splitBy " ")[2] as String)
-    else
-        "2000-01-01" // Default date if format doesn't match
+fun transformDate(dateString) = do {
+    // Parse with explicit default timezone information
+    var parsed = dateString as LocalDateTime {format: "dd MMM yyyy, HH:mm"}
+    ---
+    parsed as String {format: "yyyy-MM-dd"}
+}
 
 fun monthToNumber(month) =
     {
@@ -89,7 +86,7 @@ fun extractTags(tagArray) =
     },
     url: item.track.url,
     imageUrl: extractLargeImage(item.track.album.image),
-    date: extractDate(item.track.wiki.published),
+    date: transformDate(item.track.wiki.published),
     listeners: item.track.listeners as Number,
     playcount: item.track.playcount as Number,
     summary: item.track.wiki.summary,
