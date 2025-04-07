@@ -6,7 +6,7 @@
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<sub-flow name="getTracks" doc:id="24585d3e-793f-4a2d-afd3-333ad20cdf4b" >
-		<set-variable value='#[[attributes.queryParams.genre]]' doc:name="[genres]" doc:id="f260b4fc-1968-42a6-a407-023bbfe2bcec" variableName="genres" />
+		<set-variable value='#[attributes.queryParams.genres splitBy ","]' doc:name="[genres]" doc:id="f260b4fc-1968-42a6-a407-023bbfe2bcec" variableName="genres" />
 		<set-variable value="#[[]]" doc:name="minimizedTracks[]" doc:id="7e951c03-7490-49a0-9b6c-73ae1074a2c0" variableName="minimizedTracks" />
 		<foreach doc:name="For Each genres" doc:id="553ceb9a-a1e8-4aed-af1a-84a1a9e8a0fc" collection="#[vars.genres]" >
 			<set-variable value="#[vars.genres[vars.counter-1]]" doc:name="[genre]" doc:id="a5ae5a4c-1028-41f0-b2d8-5e3bead8391d" variableName="genre" />
