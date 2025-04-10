@@ -1,0 +1,46 @@
+[
+  {
+    "mbid": "5660558a-bfa7-416f-99d9-a34ca0a34515",
+    "name": "Feel Good Inc.",
+    "artist": {
+      "mbid": "e21857d5-3256-4547-afb3-4b6ded592596",
+      "name": "Gorillaz",
+      "url": "https://www.last.fm/music/Gorillaz"
+    },
+    "url": "https://www.last.fm/music/Gorillaz/_/Feel+Good+Inc.",
+    "imageUrl": "https://lastfm.freetls.fastly.net/i/u/174s/a9c052ef2656668af3ba4753f2e1cbe7.png",
+    "date": "2009-03-17",
+    "listeners": 3030399,
+    "playcount": 32659099,
+    "summary": "\"Feel Good Inc.\" is a song by British virtual band Gorillaz, featuring American hip-hop group De La Soul. The song was released as the lead single from the band's second studio album \"Demon Days\" on 9 May 2005. The single peaked at No. 2 in the United Kingdom and Europe, and No. 14 in the United States. \"Feel Good Inc.\" made the US Billboard year-end top songs chart in 2005 and 2006. It also topped Billboard's Alternative Songs chart in the U.S. for eight consecutive weeks, a first for the band. <a href=\"http://www.last.fm/music/Gorillaz/_/Feel+Good+Inc.\">Read more on Last.fm</a>.",
+    "tags": [
+      "alternative",
+      "electronic",
+      "Hip-Hop",
+      "rock",
+      "gorillaz"
+    ]
+  },
+  {
+    "mbid": "8b5bf478-22f8-4902-a1c1-0db82261db58",
+    "name": "Yellow",
+    "artist": {
+      "mbid": "cc197bad-dc9c-440d-a5b5-d52ba2e14234",
+      "name": "Coldplay",
+      "url": "https://www.last.fm/music/Coldplay"
+    },
+    "url": "https://www.last.fm/music/Coldplay/_/Yellow",
+    "imageUrl": "https://lastfm.freetls.fastly.net/i/u/174s/5fbcfb7258117e88cb73b45e25c88b01.png",
+    "date": "2008-06-21",
+    "listeners": 2933440,
+    "playcount": 29201277,
+    "summary": "\"Yellow\" is a song by English alternative rock band Coldplay. The band wrote the song and co-produced it with British record producer Ken Nelson for their debut album, Parachutes. The song's lyrics are a reference to band vocalist Chris Martin's unrequited love, and its musicscape is built on a varied instrumentation.\n\nThe song was released in June 2000 as the second single off the album, following \"Shiver\", and the lead single in the United States. <a href=\"http://www.last.fm/music/Coldplay/_/Yellow\">Read more on Last.fm</a>.",
+    "tags": [
+      "rock",
+      "Coldplay",
+      "alternative",
+      "britpop",
+      "alternative rock"
+    ]
+  }
+]

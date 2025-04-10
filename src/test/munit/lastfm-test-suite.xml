@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="lastfm-test-suite.xml" />
+	<munit:test name="getTracksFromIds-nominal-test" doc:id="b48dfec2-13e4-4be4-a5b3-7c3bf507f72a" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="LastFM request (track.getInfo)" doc:id="bca7e31a-bc9a-4c00-a08e-ee3404236671" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="to Lastfm (track.getInfo)" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1d952de8-223b-4f3a-82ef-cc3d2240af14" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="LastfmRequestConfig" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/" attributeName="path" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsString('data/lastfm-response.json')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:spy doc:name="Spy" doc:id="6ee27b6c-12d3-4152-a7fd-ff90848dcf88" processor="ee:transform">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Data Mapping TDM" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="7a390430-707d-4efd-ba2f-4afc02f0dc11" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:before-call >
+					<munit-tools:assert-that doc:name="2 tracks" doc:id="0a504e73-6707-4444-8402-26409d3505e1" message="Must be 2 iterations" expression="#[sizeOf(vars.tracks)]" is="#[MunitTools::equalTo(2)]" />
+				</munit-tools:before-call>
+				<munit-tools:after-call >
+					<munit-tools:assert-equals doc:name="to TDM" doc:id="d9e00bdf-3160-4f3d-9e7e-1e9d55e4ec28" actual="#[payload]" expected="#[read(MunitTools::getResourceAsString('data/mapping-response.json'), 'application/json')]" message="mapping failed"/>
+				</munit-tools:after-call>
+			</munit-tools:spy>
+		</munit:behavior>
+		<munit:execution >
+			<set-variable value='#[["5660558a-bfa7-416f-99d9-a34ca0a34515", "8b5bf478-22f8-4902-a1c1-0db82261db58"]]' doc:name="[mbids]" doc:id="302cd85f-1a06-4d6c-a030-bbd774103c54" variableName="mbids"/>
+			<flow-ref doc:name="getDetailsFromIds" doc:id="59fc4e56-a4d2-4361-a007-5c6ff7614533" name="getDetailsFromIds"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="995575a8-c4e8-48b3-84ce-4fc62c4b4ded" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="[INFO] End getDetailsFromIds" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="0ee25a41-505e-4462-a3d6-6abfd5a32d0c" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="getTracksFromGenres-nominal-test" doc:id="b3287419-9445-40d5-9f53-1c94bb30620c" description="Test" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="LastFM request (tag.topTracks)" doc:id="eb1f1108-6abf-4689-a247-11e1556366d0" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="to Lastfm (tags.topTracks)" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="5e5501c7-bf54-4ebb-bf29-664188be9b91" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="LastfmRequestConfig" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/" attributeName="path" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsString('data/lastfm-tag-response.json')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:spy doc:name="Spy" doc:id="ef5f6fe1-ab52-4f92-acce-cf6f051816a9" processor="ee:transform" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Data Mapping TDM" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="7a390430-707d-4efd-ba2f-4afc02f0dc11" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:before-call >
+					<munit-tools:assert-that doc:name="2 tracks" doc:id="6f84971c-d546-4934-b6ae-dcdbc4873b15" message="Must be 2 iterations" expression="#[sizeOf(vars.tracks)]" is="#[MunitTools::equalTo(2)]" />
+				</munit-tools:before-call>
+				<munit-tools:after-call >
+					<munit-tools:assert-equals doc:name="to TDM" doc:id="43cad004-df06-44ec-b104-181899b340f1" actual="#[payload]" expected="#[read(MunitTools::getResourceAsString('data/mapping-response.json'), 'application/json')]" message="mapping failed" />
+				</munit-tools:after-call>
+			</munit-tools:spy>
+		</munit:behavior>
+		<munit:execution >
+			<set-variable value='#[["pop", "rap"]]' doc:name="[genres]" doc:id="6979872e-a932-431a-99e0-8a8ba6823b6b" variableName="genres" />
+			<flow-ref doc:name="getPopularTracksFromGenres" doc:id="68da37dd-2a08-4c71-b6dd-283d921bf18d" name="getPopularTracksFromGenres" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="96e4d58c-b3d0-4bf1-b831-aa37a63bf59d" processor="logger" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="[INFO] End getPopularTracksFromGenres" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ba73cf81-fa6b-485e-8062-c650dbbef99a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+</mule>

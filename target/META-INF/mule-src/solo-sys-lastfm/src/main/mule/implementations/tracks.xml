@@ -6,42 +6,11 @@
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<sub-flow name="getTracks" doc:id="24585d3e-793f-4a2d-afd3-333ad20cdf4b" >
-		<set-variable value='#[attributes.queryParams.genres splitBy ","]' doc:name="[genres]" doc:id="f260b4fc-1968-42a6-a407-023bbfe2bcec" variableName="genres" />
-		<set-variable value="#[[]]" doc:name="minimizedTracks[]" doc:id="7e951c03-7490-49a0-9b6c-73ae1074a2c0" variableName="minimizedTracks" />
-		<foreach doc:name="For Each genres" doc:id="553ceb9a-a1e8-4aed-af1a-84a1a9e8a0fc" collection="#[vars.genres]" >
-			<set-variable value="#[vars.genres[vars.counter-1]]" doc:name="[genre]" doc:id="a5ae5a4c-1028-41f0-b2d8-5e3bead8391d" variableName="genre" />
-			<http:request method="GET" doc:name="to Lastfm (tags.topTracks)" doc:id="5e5501c7-bf54-4ebb-bf29-664188be9b91" config-ref="LastfmRequestConfig" path="/" >
-				<http:query-params ><![CDATA[#[output application/java
----
-{
-	"method" : "tag.gettoptracks",
-	"tag" : vars.genre,
-	"page": "1",
-	"limit": "8",
-	"format": "json",
-	"api_key": "${lastfm.apiKey}"
-}]]]></http:query-params>
-			</http:request>
-			<set-variable value="#[output application/json&#10;---&#10;vars.minimizedTracks ++ [payload]]" doc:name="minimizedTracks ++ payload" doc:id="159036e9-62b3-45b8-b355-462a64ddbd59" variableName="minimizedTracks" />
-		</foreach>
-		<set-variable value="#[output application/json&#10;---&#10;flatten(vars.minimizedTracks.tracks.track map () -&gt; $.mbid)]" doc:name="[mbids]" doc:id="4704dd8f-12e6-4bc2-88e2-fcd14041bfd8" variableName="mbids"/>
-		<logger level="INFO" doc:name="Logger1" doc:id="076db9fa-57dc-4ef0-b181-0bee8bdd59aa" />
-		<set-variable value="#[[]]" doc:name="[tracks]" doc:id="025883c4-ac99-4af4-876e-14035897e976" variableName="tracks"/>
-		<foreach doc:name="For Each mbids" doc:id="2ca20d26-8880-404b-be2c-f27b3ab18a94" collection="#[vars.mbids]">
-			<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.mbids[vars.counter-1]]" doc:name="[mbid]" doc:id="60ac9920-d03f-42b7-9a9d-65122d51faf1" variableName="mbid" />
-			<http:request method="GET" doc:name="to Lastfm (track.getInfo)" doc:id="1d952de8-223b-4f3a-82ef-cc3d2240af14" config-ref="LastfmRequestConfig" path="/">
-				<http:query-params><![CDATA[#[output application/java
----
-{
-	"method" : "track.getInfo",
-	"mbid" : vars.mbid,
-	"format": "json",
-	"api_key": "${lastfm.apiKey}"
-}]]]></http:query-params>
-			</http:request>
-			<set-variable value="#[output application/json&#10;---&#10;vars.tracks ++ [payload]]" doc:name="tracks ++ payload" doc:id="04ef1a0d-10e4-4d15-b175-9353a770afb3" variableName="tracks" />
-		</foreach>
-		<ee:transform doc:name="Transform Message" doc:id="7a390430-707d-4efd-ba2f-4afc02f0dc11" >
+		<set-variable value='#[attributes.queryParams.genres splitBy ","]' doc:name="[genres]" doc:id="3e61883e-7b9c-4cc7-a270-f218d9815dbf" variableName="genres" />
+		<flow-ref doc:name="getPopularTracksFromGenres" doc:id="e29a99c0-1200-4eb0-9746-efc6f28b3081" name="getPopularTracksFromGenres"/>
+		<set-variable value="#[output application/json&#10;---&#10;flatten(vars.minimizedTracks.tracks.track map () -&gt; $.mbid)]" doc:name="[mbids]" doc:id="520a8068-2d6a-45d3-bbf2-1beb669f0cbd" variableName="mbids" />
+		<flow-ref doc:name="getDetailsFromIds" doc:id="4d3c4430-98b3-4ce6-b85d-1cd15da5c9d7" name="getDetailsFromIds"/>
+		<ee:transform doc:name="Data Mapping TDM" doc:id="7a390430-707d-4efd-ba2f-4afc02f0dc11" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -78,6 +47,46 @@ fun extractTags(tagArray) =
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="019e1027-ed5c-4186-8a3b-7da41f3017d6" message="#[vars.tracks]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="019e1027-ed5c-4186-8a3b-7da41f3017d6" message="#[payload]"/>
+	</sub-flow>
+	<sub-flow name="getPopularTracksFromGenres" doc:id="2c549624-f2a3-4aa7-9fd9-96f271ea4375" >
+		<logger level="INFO" doc:name="DEBUG [genres]" doc:id="b2e2b13a-4b7d-402c-b82c-85d0538a5d57" message='#[import prettifyFlowName from modules::ToolBox&#10;output application/json&#10;---&#10;{&#10;	step:"Start $(prettifyFlowName(flow.name)) flow",&#10;	data: vars.genres&#10;}]'/>
+		<set-variable value="#[[]]" doc:name="minimizedTracks[]" doc:id="7e951c03-7490-49a0-9b6c-73ae1074a2c0" variableName="minimizedTracks" />
+		<foreach doc:name="For Each genres" doc:id="553ceb9a-a1e8-4aed-af1a-84a1a9e8a0fc" collection="#[vars.genres]">
+			<set-variable value="#[vars.genres[vars.counter-1]]" doc:name="[genre]" doc:id="a5ae5a4c-1028-41f0-b2d8-5e3bead8391d" variableName="genre" />
+			<http:request method="GET" doc:name="to Lastfm (tag.topTracks)" doc:id="5e5501c7-bf54-4ebb-bf29-664188be9b91" config-ref="LastfmRequestConfig" path="/">
+				<http:query-params><![CDATA[#[output application/java
+---
+{
+	"method" : "tag.gettoptracks",
+	"tag" : vars.genre,
+	"page": "1",
+	"limit": "8",
+	"format": "json",
+	"api_key": "${lastfm.apiKey}"
+}]]]></http:query-params>
+			</http:request>
+			<set-variable value="#[output application/json&#10;---&#10;vars.minimizedTracks ++ [payload]]" doc:name="minimizedTracks ++ payload" doc:id="159036e9-62b3-45b8-b355-462a64ddbd59" variableName="minimizedTracks" />
+		</foreach>
+		<logger level="INFO" doc:name="[INFO] End getPopularTracksFromGenres" doc:id="ba73cf81-fa6b-485e-8062-c650dbbef99a" message='#[import prettifyFlowName from modules::ToolBox&#10;output application/json&#10;---&#10;{&#10;	step:"Start $(prettifyFlowName(flow.name)) flow",&#10;	data: vars.minimizedTracks&#10;}]' />
+	</sub-flow>
+	<sub-flow name="getDetailsFromIds" doc:id="8d3779de-0221-4b95-8f2e-54b4eec9566e" >
+		<logger level="DEBUG" doc:name="DEBUG [mbids]" doc:id="076db9fa-57dc-4ef0-b181-0bee8bdd59aa" message='#[import prettifyFlowName from modules::ToolBox&#10;output application/json&#10;---&#10;{&#10;	step:"Start $(prettifyFlowName(flow.name)) flow",&#10;	data: vars.mbids&#10;}]'/>
+		<set-variable value="#[[]]" doc:name="[tracks]" doc:id="025883c4-ac99-4af4-876e-14035897e976" variableName="tracks" />
+		<foreach doc:name="For Each mbids" doc:id="2ca20d26-8880-404b-be2c-f27b3ab18a94" collection="#[vars.mbids]">
+			<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;vars.mbids[vars.counter-1]]" doc:name="[mbid]" doc:id="60ac9920-d03f-42b7-9a9d-65122d51faf1" variableName="mbid" />
+			<http:request method="GET" doc:name="to Lastfm (track.getInfo)" doc:id="1d952de8-223b-4f3a-82ef-cc3d2240af14" config-ref="LastfmRequestConfig" path="/">
+				<http:query-params><![CDATA[#[output application/java
+---
+{
+	"method" : "track.getInfo",
+	"mbid" : vars.mbid,
+	"format": "json",
+	"api_key": "${lastfm.apiKey}"
+}]]]></http:query-params>
+			</http:request>
+			<set-variable value="#[output application/json&#10;---&#10;vars.tracks ++ [payload]]" doc:name="tracks ++ payload" doc:id="04ef1a0d-10e4-4d15-b175-9353a770afb3" variableName="tracks" />
+		</foreach>
+		<logger level="INFO" doc:name="[INFO] End getDetailsFromIds" doc:id="0ee25a41-505e-4462-a3d6-6abfd5a32d0c" message='#[import prettifyFlowName from modules::ToolBox&#10;output application/json&#10;---&#10;{&#10;	step:"Start $(prettifyFlowName(flow.name)) flow",&#10;	data: vars.tracks&#10;}]' />
 	</sub-flow>
 </mule>
