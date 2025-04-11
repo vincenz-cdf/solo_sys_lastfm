@@ -3,6 +3,7 @@ https:
   
 api:
   basePath: "/api/v1"
+  autodiscovery: "20293674"
   
 lastfm:
   protocol: "HTTPS"
